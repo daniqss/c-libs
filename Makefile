@@ -1,6 +1,6 @@
 # Compilador y banderas
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -I./src/utils
+CFLAGS = -Wall -Wextra -I./src/utils
 LDFLAGS = -lcmocka
 
 # Directorios

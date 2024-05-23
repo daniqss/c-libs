@@ -14,28 +14,27 @@ typedef struct _Vector {
 
 int32_t vector_realloc(Vector vector);
 
-int32_t vector_new(Vector vector, uint32_t capacity, uint32_t element_size) {
-    if ((vector = (Vector)malloc(sizeof(_Vector))) == NULL)
+int32_t vector_new(Vector *vector, uint32_t capacity, uint32_t element_size) {
+    if (((*vector) = (Vector)malloc(sizeof(_Vector))) == NULL)
         return ERROR_MALLOC;
 
-    vector->size = 0; 
-    vector->capacity = (capacity >= 1)? capacity : VECTOR_SIZE;
-    vector->element_size = element_size;
+    (*vector)->size = 0; 
+    (*vector)->capacity = (capacity >= 1)? capacity : VECTOR_SIZE;
+    (*vector)->element_size = element_size;
 
-    printf("\n%d\n", vector->capacity);
-
-    if ((vector->data = (void **)malloc(vector->capacity * sizeof(void *))) == NULL)
+    if (((*vector)->data = (void **)malloc((*vector)->capacity * sizeof(void *))) == NULL)
         return ERROR_MALLOC;
 
     return SUCCESS;
 }
 
-int32_t vector_delete(Vector vector) {
-    for (uint32_t i = 0; i < vector->size - 1; i++) {
-        free(vector->data[i]);
+int32_t vector_delete(Vector *vector) {
+    for (uint32_t i = 0; i < (*vector)->size; i++) {
+        vector_pop(*vector);
     }
-    free(vector->data);
-    free(vector);
+    free((*vector)->data);
+    free(*vector);
+    *vector = NULL;
 
     return SUCCESS;
 }
@@ -82,8 +81,8 @@ uint32_t vector_capacity(Vector vector) {
 int32_t vector_realloc(Vector vector) {
     void **aux = NULL;
 
-    aux = realloc(vector->data, vector->capacity + VECTOR_SIZE * sizeof(void *));
-    if (vector->data == NULL)
+    aux = realloc(vector->data, (vector->capacity + VECTOR_SIZE) * sizeof(void *));
+    if (aux == NULL)
         return ERROR_MALLOC;
 
     vector->capacity += VECTOR_SIZE;
