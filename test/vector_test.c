@@ -9,10 +9,10 @@
 
 static void test_vector_new() {
     Vector vector = NULL;
-    int32_t result = vector_new(&vector, 10, sizeof(int));
+    int32_t result = vector_new(&vector, sizeof(int));
 
     assert_int_equal(result, SUCCESS);
-    assert_int_equal(vector_capacity(vector), 10);
+    assert_int_equal(vector_capacity(vector), 1024);
     assert_int_equal(vector_size(vector), 0);
 
     vector_delete(&vector);
@@ -24,7 +24,7 @@ static void test_vector_push() {
     uint32_t size = 5;
 
 
-    int32_t result = vector_new(&vector, size, sizeof(int));
+    int32_t result = vector_with_capacity(&vector, size, sizeof(int));
     assert_int_equal(result, SUCCESS);
     assert_int_equal(vector_capacity(vector), size);
     assert_int_equal(vector_size(vector), 0);
@@ -47,12 +47,23 @@ static void test_vector_push() {
     assert_null(vector);
 }
 
+static void test_vector_at() {
+    Vector vector = NULL;
+    int array[] = {1, 2, 3, 4, 5};
+
+    int32_t result = vector_from(&vector, array, 5, sizeof(int));
+    assert_int_equal(result, SUCCESS);
+    assert_int_equal(vector_capacity(vector), 5);
+    assert_int_equal(vector_size(vector), 5);
+}
+
 // static void 
 
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_vector_new),
         cmocka_unit_test(test_vector_push),
+        cmocka_unit_test(test_vector_at),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

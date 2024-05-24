@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include "memory.h"
 
-// typedef char
-
 int32_t copy_memory(void *src, void *dest, uint32_t element_size) {
     if (src == NULL || dest != NULL) return ERROR_ARGS;
 

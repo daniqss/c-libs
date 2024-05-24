@@ -13,19 +13,29 @@ typedef struct _Vector {
 } _Vector;
 
 int32_t vector_realloc(Vector vector);
+int32_t vector_alloc(Vector *vector, uint32_t capacity, uint32_t element_size);
 
-int32_t vector_new(Vector *vector, uint32_t capacity, uint32_t element_size) {
-    if (((*vector) = (Vector)malloc(sizeof(_Vector))) == NULL)
-        return ERROR_MALLOC;
+int32_t vector_new(Vector *vector, uint32_t element_size) {
+    return vector_alloc(vector, VECTOR_SIZE, element_size);
+}
 
-    (*vector)->size = 0; 
-    (*vector)->capacity = (capacity >= 1)? capacity : VECTOR_SIZE;
-    (*vector)->element_size = element_size;
+int32_t vector_from(Vector *vector, void *data, uint32_t size, uint32_t element_size) {
+    int32_t result = vector_alloc(vector, size, element_size);
 
-    if (((*vector)->data = (void **)malloc((*vector)->capacity * sizeof(void *))) == NULL)
-        return ERROR_MALLOC;
+    for (uint32_t i = 0; i < size; i++) {
+        void *element = NULL;
+        int32_t result = copy_memory(data + i * element_size, element, element_size);
+        if (result != SUCCESS) return result;
+
+        (*vector)->data[i] = element;
+    }
+    (*vector)->size = size;
 
     return SUCCESS;
+}
+
+int32_t vector_with_capacity(Vector *vector, uint32_t capacity, uint32_t element_size) {
+    return vector_alloc(vector, capacity, element_size);
 }
 
 int32_t vector_delete(Vector *vector) {
@@ -78,6 +88,20 @@ uint32_t vector_capacity(Vector vector) {
 // }
 
 // Private Functions
+int32_t vector_alloc(Vector *vector, uint32_t capacity, uint32_t element_size) {
+    if (((*vector) = (Vector)malloc(sizeof(_Vector))) == NULL)
+        return ERROR_MALLOC;
+
+    (*vector)->size = 0;
+    (*vector)->capacity = capacity;
+    (*vector)->element_size = element_size;
+
+    if (((*vector)->data = (void **)malloc((*vector)->capacity * sizeof(void *))) == NULL)
+        return ERROR_MALLOC;
+
+    return SUCCESS;
+}
+
 int32_t vector_realloc(Vector vector) {
     void **aux = NULL;
 
