@@ -21,10 +21,11 @@ int32_t vector_new(Vector *vector, uint32_t element_size) {
 
 int32_t vector_from(Vector *vector, void *data, uint32_t size, uint32_t element_size) {
     int32_t result = vector_alloc(vector, size, element_size);
+    if (result != SUCCESS) return result;
 
     for (uint32_t i = 0; i < size; i++) {
         void *element = NULL;
-        int32_t result = copy_memory(data + i * element_size, element, element_size);
+        result = copy_memory(data + i * element_size, &element, element_size);
         if (result != SUCCESS) return result;
 
         (*vector)->data[i] = element;
@@ -56,7 +57,7 @@ int32_t vector_push(Vector vector, void *element) {
         if (vector_realloc(vector) == ERROR_MALLOC)
             return ERROR_MALLOC;
 
-    int32_t result = copy_memory(element, element_cpy, vector->element_size);
+    int32_t result = copy_memory(element, &element_cpy, vector->element_size);
     if (result != SUCCESS) return result;
 
     vector->data[vector->size++] = element_cpy;
@@ -69,10 +70,6 @@ int32_t vector_pop(Vector vector) {
     return SUCCESS;
 }
 
-void *vector_at(Vector vector, uint32_t index) {
-    return vector->data[index];
-}
-
 uint32_t vector_size(Vector vector) {
     return vector->size;
 }
@@ -81,11 +78,13 @@ uint32_t vector_capacity(Vector vector) {
     return vector->capacity;
 }
 
-// int32_t vector_at(Vector *vector, void *element,int32_t index) {
-//     if (element != NULL) return ERROR_ARGS;
-//     if (vector == NULL) return ERROR_ARGS;
-//     return copy_memory(vector->data[index], element, vector->element_size);
-// }
+int32_t vector_at(Vector vector, void **element, uint32_t index) {
+    if (vector == NULL) return ERROR_ARGS;
+    index = index % vector->size;
+
+    int32_t result = copy_memory(vector->data[index], element, vector->element_size);
+    return result;
+}
 
 // Private Functions
 int32_t vector_alloc(Vector *vector, uint32_t capacity, uint32_t element_size) {

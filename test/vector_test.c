@@ -3,6 +3,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "../src/vector.h"
 #include "../src/utils/memory.h"
@@ -50,20 +51,30 @@ static void test_vector_push() {
 static void test_vector_at() {
     Vector vector = NULL;
     int array[] = {1, 2, 3, 4, 5};
+    int *element = NULL;
+    int32_t result[5];
 
-    int32_t result = vector_from(&vector, array, 5, sizeof(int));
-    assert_int_equal(result, SUCCESS);
+    assert_int_equal(vector_from(&vector, array, 5, sizeof(int)), SUCCESS);
     assert_int_equal(vector_capacity(vector), 5);
     assert_int_equal(vector_size(vector), 5);
+
+    for (uint32_t i = 0; i < 5; i++) {
+        result[i] = vector_at(vector, (void **)&element, i);
+        assert_int_equal(result[i], SUCCESS);
+        assert_int_equal(*element, array[i]);
+        free(element);
+    }
+
+    vector_delete(&vector);
 }
 
-// static void 
 
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_vector_new),
         cmocka_unit_test(test_vector_push),
         cmocka_unit_test(test_vector_at),
+
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
