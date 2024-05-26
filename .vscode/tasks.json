@@ -1,0 +1,117 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile vector.o",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-Wall",
+                "-Wextra",
+                "-g",
+                "-I./src/utils",
+                "-c",
+                "src/vector.c",
+                "-o",
+                "bin/vector.o"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Compile memory.o",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-Wall",
+                "-Wextra",
+                "-g",
+                "-I./src/utils",
+                "-c",
+                "src/utils/memory.c",
+                "-o",
+                "bin/utils/memory.o"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Compile vector_test.o",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-Wall",
+                "-Wextra",
+                "-g",
+                "-I./src/utils",
+                "-c",
+                "test/vector_test.c",
+                "-o",
+                "bin/vector_test.o"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Link and build test executable",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-Wall",
+                "-Wextra",
+                "-g",
+                "bin/vector.o",
+                "bin/utils/memory.o",
+                "bin/vector_test.o",
+                "-o",
+                "bin/test",
+                "-lcmocka"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "Build and Run Tests",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Compile vector.o",
+                "Compile memory.o",
+                "Compile vector_test.o",
+                "Link and build test executable"
+            ]
+        },
+        {
+            "label": "Run Tests",
+            "type": "shell",
+            "command": "${workspaceFolder}/bin/test",
+            "group": "test",
+            "dependsOn": "Build and Run Tests"
+        },
+        {
+            "label": "Run Valgrind",
+            "type": "shell",
+            "command": "valgrind",
+            "args": [
+                "--leak-check=full",
+                "--show-leak-kinds=all",
+                "--track-origins=yes",
+                "-s",
+                "${workspaceFolder}/bin/test"
+            ],
+            "group": "test",
+            "problemMatcher": []
+        }
+    ]
+}

@@ -8,6 +8,9 @@
 #include "../src/vector.h"
 #include "../src/utils/memory.h"
 
+#define TEST_SMALL_VECTOR 16
+#define TEST_LARGE_VECTOR 1024 
+
 static void test_vector_new() {
     Vector vector = NULL;
     int32_t result = vector_new(&vector, sizeof(int));
@@ -25,7 +28,7 @@ static void test_vector_push() {
     uint32_t size = 5;
 
 
-    int32_t result = vector_with_capacity(&vector, size, sizeof(int));
+    int32_t result = vector_with_capacity(&vector, size, sizeof(int32_t));
     assert_int_equal(result, SUCCESS);
     assert_int_equal(vector_capacity(vector), size);
     assert_int_equal(vector_size(vector), 0);
@@ -50,15 +53,18 @@ static void test_vector_push() {
 
 static void test_vector_at() {
     Vector vector = NULL;
-    int array[] = {1, 2, 3, 4, 5};
-    int *element = NULL;
-    int32_t result[5];
+    int64_t array[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+    };
+    int8_t *element = NULL;
+    int64_t result[TEST_SMALL_VECTOR];
 
-    assert_int_equal(vector_from(&vector, array, 5, sizeof(int)), SUCCESS);
-    assert_int_equal(vector_capacity(vector), 5);
-    assert_int_equal(vector_size(vector), 5);
+    assert_int_equal(vector_from(&vector, array, TEST_SMALL_VECTOR, sizeof(int64_t)), SUCCESS);
+    assert_int_equal(vector_capacity(vector), TEST_SMALL_VECTOR);
+    assert_int_equal(vector_size(vector), TEST_SMALL_VECTOR);
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < TEST_SMALL_VECTOR; i++) {
         result[i] = vector_at(vector, (void **)&element, i);
         assert_int_equal(result[i], SUCCESS);
         assert_int_equal(*element, array[i]);

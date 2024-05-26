@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "utils/memory.h"
 #include <stdio.h>
+#include <string.h>
 
 #define VECTOR_SIZE 1024
 
@@ -21,14 +22,20 @@ int32_t vector_new(Vector *vector, uint32_t element_size) {
 
 int32_t vector_from(Vector *vector, void *data, uint32_t size, uint32_t element_size) {
     int32_t result = vector_alloc(vector, size, element_size);
+    void *element = NULL;
+
     if (result != SUCCESS) return result;
-
     for (uint32_t i = 0; i < size; i++) {
-        void *element = NULL;
         result = copy_memory(data + i * element_size, &element, element_size);
-        if (result != SUCCESS) return result;
-
+        if (result != SUCCESS) {
+            for (uint32_t j = 0; j < i; j++) {
+                free((*vector)->data[j]);
+            }
+            free((*vector)->data);
+            return result;
+        }
         (*vector)->data[i] = element;
+        element = NULL;
     }
     (*vector)->size = size;
 
@@ -41,7 +48,8 @@ int32_t vector_with_capacity(Vector *vector, uint32_t capacity, uint32_t element
 
 int32_t vector_delete(Vector *vector) {
     for (uint32_t i = 0; i < (*vector)->size; i++) {
-        vector_pop(*vector);
+        // vector_pop(*vector);
+        free((*vector)->data[i]);
     }
     free((*vector)->data);
     free(*vector);
@@ -66,7 +74,6 @@ int32_t vector_push(Vector vector, void *element) {
 
 int32_t vector_pop(Vector vector) {
     free(vector->data[--vector->size]);
-
     return SUCCESS;
 }
 

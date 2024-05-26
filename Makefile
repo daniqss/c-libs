@@ -37,6 +37,9 @@ $(BIN_DIR)/test: $(OBJ_FILES) $(TEST_OBJ_FILES)
 run: $(BIN_DIR)/test
 	$(BIN_DIR)/test
 
+valgrind: $(BIN_DIR)/test
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --errors-for-leak-kinds=all -s ./$(BIN_DIR)/test
+
 # Regla para limpiar
 clean:
 	rm -rf $(BIN_DIR)/* $(LOG_DIR)/*

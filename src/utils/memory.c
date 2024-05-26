@@ -11,6 +11,5 @@ int32_t copy_memory(void *src, void **dest, uint32_t element_size) {
     for (uint32_t i = 0; i < element_size; i++)
         ((uint8_t *)(*dest))[i] = ((uint8_t *)src)[i];
 
-    // printf("src(%p) = %d, dest(%p) = %d\n", src, *(int *)src, *dest, *(int *)*dest);
     return SUCCESS;
 }
