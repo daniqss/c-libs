@@ -101,13 +101,18 @@ int32_t vector_clone_at(Vector vector, void **element, uint32_t index) {
     return result;
 }
 
-int32_t vector_iter(Vector vector, void (*fn)(void *)) {
+int32_t vector_iter(Vector vector, void (*fn)(void *vector_element, void *args), void *args) {
     if (vector == NULL) return ERROR_ARGS;
+    for (uint32_t i = 0; i < vector->size; i++)
+        fn(vector->data[i], args);
 
-    for (uint32_t i = 0; i < vector->size; i++) {
-        
-        fn(vector->data[i]);
-    }
+    return SUCCESS;
+}
+
+int32_t vector_map(Vector vector, Vector *new_vector, Vector (*fn)(void *vector_element, void *args), void *args) {
+    if (vector == NULL) return ERROR_ARGS;
+    for (uint32_t i = 0; i < vector->size; i++)
+        fn(vector->data[i], args);
 
     return SUCCESS;
 }

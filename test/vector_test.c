@@ -82,28 +82,10 @@ static void test_vector_at() {
     vector_delete(&vector);
 }
 
-void print_int64_t(void *element) {
+void print_int64_t(void *element, void *args) {
+    if (args != NULL) return;
     printf("%ld\n", *(int64_t *)element);
 }
-
-// static void test_vector_iter() {
-//     Vector vector = NULL;
-//     int64_t array[] = {
-//         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-//         16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
-//     };
-//     char *vector_buffer = NULL, *array_buffer = NULL;
-
-//     assert_int_equal(vector_from(&vector, array, TEST_SMALL_VECTOR, sizeof(int64_t)), SUCCESS);
-//     assert_int_equal(vector_capacity(vector), TEST_SMALL_VECTOR);
-//     assert_int_equal(vector_length(vector), TEST_SMALL_VECTOR);
-
-//     vector_iter(vector, print_int64_t);
-//     for (uint32_t i = 0; i < 10; i++) print_int64_t((void *)&array[i]);
-//     assert_string_equal(vector_buffer, array_buffer);
-
-//     vector_delete(&vector);
-// }
 
 static void test_vector_iter() {
     Vector vector = NULL;
@@ -127,12 +109,11 @@ static void test_vector_iter() {
     dup2(pipe_fd[1], 1);
     close(pipe_fd[1]);
 
-    vector_iter(vector, print_int64_t);
+    vector_iter(vector, print_int64_t, NULL);
 
     fflush(stdout);
     read(pipe_fd[0], vector_buffer, 1024);
     vector_buffer[1024 - 1] = '\0';
-
     dup2(stdout_fd, 1);
     close(stdout_fd);
     close(pipe_fd[0]);
@@ -140,18 +121,16 @@ static void test_vector_iter() {
 
     fflush(stdout);
     stdout_fd = dup(1);
-    pipe_fd[2];
     pipe(pipe_fd);
     dup2(pipe_fd[1], 1);
     close(pipe_fd[1]);
 
-    for (uint32_t i = 0; i < TEST_SMALL_VECTOR; i++)
-        print_int64_t((void *)&array[i]);
+    for (uint32_t j = 0; j < TEST_SMALL_VECTOR; j++)
+        print_int64_t((void *)&array[j], NULL);
 
     fflush(stdout);
     read(pipe_fd[0], array_buffer, 1024);
     array_buffer[1024 - 1] = '\0';
-
     dup2(stdout_fd, 1);
     close(stdout_fd);
     close(pipe_fd[0]);

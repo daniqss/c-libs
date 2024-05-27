@@ -13,7 +13,8 @@ int32_t vector_push(Vector vector, void *element);
 int32_t vector_pop(Vector vector);
 int32_t vector_at(Vector vector, const void **element, uint32_t index);
 int32_t vector_clone_at(Vector vector, void **element, uint32_t index);
-int32_t vector_iter(Vector vector, void (*fn)(void *));
+int32_t vector_iter(Vector vector, void (*fn)(void *vector_element, void *args), void *args);
+int32_t vector_map(Vector vector, Vector *new_vector, Vector (*fn)(void *vector_element, void *args), void *args);
 
 uint32_t vector_length(Vector vector);
 uint32_t vector_capacity(Vector vector);
