@@ -77,7 +77,7 @@ int32_t vector_pop(Vector vector) {
     return SUCCESS;
 }
 
-uint32_t vector_size(Vector vector) {
+uint32_t vector_length(Vector vector) {
     return vector->size;
 }
 
@@ -85,12 +85,31 @@ uint32_t vector_capacity(Vector vector) {
     return vector->capacity;
 }
 
-int32_t vector_at(Vector vector, void **element, uint32_t index) {
+int32_t vector_at(Vector vector, const void **element, uint32_t index) {
+    if (vector == NULL) return ERROR_ARGS;
+    index = index % vector->size;
+
+    *element = vector->data[index];
+    return SUCCESS;
+}
+
+int32_t vector_clone_at(Vector vector, void **element, uint32_t index) {
     if (vector == NULL) return ERROR_ARGS;
     index = index % vector->size;
 
     int32_t result = copy_memory(vector->data[index], element, vector->element_size);
     return result;
+}
+
+int32_t vector_iter(Vector vector, void (*fn)(void *)) {
+    if (vector == NULL) return ERROR_ARGS;
+
+    for (uint32_t i = 0; i < vector->size; i++) {
+        
+        fn(vector->data[i]);
+    }
+
+    return SUCCESS;
 }
 
 // Private Functions
