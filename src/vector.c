@@ -109,10 +109,26 @@ int32_t vector_iter(Vector vector, void (*fn)(void *vector_element, void *args),
     return SUCCESS;
 }
 
-int32_t vector_map(Vector vector, Vector *new_vector, Vector (*fn)(void *vector_element, void *args), void *args) {
+int32_t vector_map(Vector vector, Vector *new_vector, uint32_t new_element_size, void *(*fn)(void *vector_element, void *args), void *args) {
+    void **new_array = NULL;
+    void *element = NULL;
+    
     if (vector == NULL) return ERROR_ARGS;
-    for (uint32_t i = 0; i < vector->size; i++)
-        fn(vector->data[i], args);
+    if ((new_array = malloc(vector->size * sizeof(void *))) == NULL) return ERROR_MALLOC;
+    for (uint32_t i = 0; i < vector->size; i++) {
+        // The given function should return a pointer to heap-allocated memory
+        element = fn(vector->data[i], args);
+        if (element == NULL) {
+            for (uint32_t j = 0; j < i; j++) {
+                free(new_array[j]);
+            }
+            free(new_array);
+            return ERROR_MALLOC;
+        }
+
+        new_array[i] = element;
+    }
+    vector_from(new_vector, new_array, vector->size, new_element_size);
 
     return SUCCESS;
 }
@@ -143,5 +159,3 @@ int32_t vector_realloc(Vector vector) {
     vector->data = aux;
     return SUCCESS;
 }
-
-
