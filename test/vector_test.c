@@ -85,31 +85,40 @@ static void test_vector_push() {
 
 static void test_vector_at() {
     Vector vector = NULL;
-    int64_t *array;
+    Point *array;
     void *element = NULL;
     void *ptr = NULL;
-    int64_t result[TEST_VECTOR_SIZE];
+    int result[TEST_VECTOR_SIZE];
 
-    array = malloc(TEST_VECTOR_SIZE * sizeof(int64_t));
+    array = malloc(TEST_VECTOR_SIZE * sizeof(Point));
     for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
-        array[i] = i;
+        array[i].x = i;
+        array[i].y = i * 2;
+        array[i].z = i * 3;
     }
 
-    assert_int_equal(vector_from(&vector, (uint8_t *)array, TEST_VECTOR_SIZE, sizeof(int64_t)), SUCCESS);
+    assert_int_equal(vector_from(&vector, (uint8_t *)array, TEST_VECTOR_SIZE, sizeof(Point)), SUCCESS);
     assert_int_equal(vector_capacity(vector), TEST_VECTOR_SIZE);
     assert_int_equal(vector_length(vector), TEST_VECTOR_SIZE);
+    assert_int_equal(vector_element_size(vector), sizeof(Point));
 
     for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
         result[i] = vector_clone_at(vector, (void **)&element, i);
         assert_int_equal(result[i], SUCCESS);
-        assert_int_equal(*(int *)element, array[i]);
+        Point *point_element = (Point *)element;
+        assert_int_equal(point_element->x, array[i].x);
+        assert_int_equal(point_element->y, array[i].y);
+        assert_int_equal(point_element->z, array[i].z);
         free(element);
     }
 
     for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
         result[i] = vector_at(vector, &ptr, i);
         assert_int_equal(result[i], SUCCESS);
-        assert_int_equal(*(int64_t *)ptr, array[i]);
+        Point *point_ptr = (Point *)ptr;
+        assert_int_equal(point_ptr->x, array[i].x);
+        assert_int_equal(point_ptr->y, array[i].y);
+        assert_int_equal(point_ptr->z, array[i].z);
     }
 
     free(array);
