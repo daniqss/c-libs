@@ -99,12 +99,12 @@ static void test_vector_at() {
     assert_int_equal(vector_capacity(vector), TEST_VECTOR_SIZE);
     assert_int_equal(vector_length(vector), TEST_VECTOR_SIZE);
 
-    // for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
-    //     result[i] = vector_clone_at(vector, (void **)&element, i);
-    //     assert_int_equal(result[i], SUCCESS);
-    //     assert_int_equal(*(int *)element, array[i]);
-    //     free(element);
-    // }
+    for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+        result[i] = vector_clone_at(vector, (void **)&element, i);
+        assert_int_equal(result[i], SUCCESS);
+        assert_int_equal(*(int *)element, array[i]);
+        free(element);
+    }
 
     for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
         result[i] = vector_at(vector, &ptr, i);
