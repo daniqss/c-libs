@@ -71,6 +71,10 @@ uint64_t vector_capacity(Vector self) {
     return self->capacity / self->element_size;
 }
 
+uint64_t vector_element_size(Vector self) {
+    return self->element_size;
+}
+
 int32_t vector_at(Vector self, void **element, uint32_t index) {
     if (self == NULL) return ERROR_ARGS;
     index = index % self->length;
