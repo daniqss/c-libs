@@ -117,61 +117,86 @@ static void test_vector_at() {
     assert_null(vector);
 }
 
-// void print_int64_t(void *element, void *args) {
-//     if (args != NULL) return;
-//     printf("%ld\n", *(int64_t *)element);
-// }
+void print_int64_t(void *element, void *args) {
+    if (args != NULL) return;
+    printf("%ld\n", *(int64_t *)element);
+}
 
-// static void test_vector_iter() {
+static void test_vector_iter() {
+    Vector vector = NULL;
+    int64_t *array;
+
+    array = malloc(TEST_VECTOR_SIZE * sizeof(int64_t));
+    for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+        array[i] = i;
+    }
+
+    assert_int_equal(vector_from(&vector, array, TEST_VECTOR_SIZE, sizeof(int64_t)), SUCCESS);
+    assert_int_equal(vector_capacity(vector), TEST_VECTOR_SIZE);
+    assert_int_equal(vector_length(vector), TEST_VECTOR_SIZE);
+
+    // Buffer to capture the outputs
+    char vector_buffer[TEST_VECTOR_SIZE * 128] = {0};
+    char array_buffer[TEST_VECTOR_SIZE * 128] = {0};
+
+    fflush(stdout);
+    int stdout_fd = dup(1);
+    int pipe_fd[2];
+    pipe(pipe_fd);
+    dup2(pipe_fd[1], 1);
+    close(pipe_fd[1]);
+
+    vector_iter(vector, print_int64_t, NULL);
+
+    fflush(stdout);
+    read(pipe_fd[0], vector_buffer, 1024);
+    vector_buffer[1024 - 1] = '\0';
+    dup2(stdout_fd, 1);
+    close(stdout_fd);
+    close(pipe_fd[0]);
+
+
+    fflush(stdout);
+    stdout_fd = dup(1);
+    pipe(pipe_fd);
+    dup2(pipe_fd[1], 1);
+    close(pipe_fd[1]);
+
+    for (uint32_t j = 0; j < TEST_VECTOR_SIZE; j++)
+        print_int64_t((void *)&array[j], NULL);
+
+    fflush(stdout);
+    read(pipe_fd[0], array_buffer, 1024);
+    array_buffer[1024 - 1] = '\0';
+    dup2(stdout_fd, 1);
+    close(stdout_fd);
+    close(pipe_fd[0]);
+
+    assert_string_equal(vector_buffer, array_buffer);
+    vector_delete(&vector);
+}
+
+// static void test_vector_map() {
 //     Vector vector = NULL;
-//     int64_t array[] = {
-//         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-//         16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
-//     };
+//     int64_t *array;
+
+//     array = malloc(TEST_VECTOR_SIZE * sizeof(int64_t));
+//     for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+//         array[i] = i;
+//     }
 
 //     assert_int_equal(vector_from(&vector, array, TEST_VECTOR_SIZE, sizeof(int64_t)), SUCCESS);
 //     assert_int_equal(vector_capacity(vector), TEST_VECTOR_SIZE);
 //     assert_int_equal(vector_length(vector), TEST_VECTOR_SIZE);
 
-//     // Buffer to capture the outputs
-//     char vector_buffer[1024] = {0};
-//     char array_buffer[1024] = {0};
-
-//     fflush(stdout);
-//     int stdout_fd = dup(1);
-//     int pipe_fd[2];
-//     pipe(pipe_fd);
-//     dup2(pipe_fd[1], 1);
-//     close(pipe_fd[1]);
-
-//     vector_iter(vector, print_int64_t, NULL);
-
-//     fflush(stdout);
-//     read(pipe_fd[0], vector_buffer, 1024);
-//     vector_buffer[1024 - 1] = '\0';
-//     dup2(stdout_fd, 1);
-//     close(stdout_fd);
-//     close(pipe_fd[0]);
+//     Vector new_vector = NULL;
+//     assert_int_equal(vector_map(vector, &new_vector, sizeof(int64_t), NULL, NULL), ERROR_ARGS);
 
 
-//     fflush(stdout);
-//     stdout_fd = dup(1);
-//     pipe(pipe_fd);
-//     dup2(pipe_fd[1], 1);
-//     close(pipe_fd[1]);
-
-//     for (uint32_t j = 0; j < TEST_VECTOR_SIZE; j++)
-//         print_int64_t((void *)&array[j], NULL);
-
-//     fflush(stdout);
-//     read(pipe_fd[0], array_buffer, 1024);
-//     array_buffer[1024 - 1] = '\0';
-//     dup2(stdout_fd, 1);
-//     close(stdout_fd);
-//     close(pipe_fd[0]);
-
-//     assert_string_equal(vector_buffer, array_buffer);
 //     vector_delete(&vector);
+//     assert_null(vector);
+//     vector_delete(&new_vector);
+//     assert_null(new_vector);
 // }
 
 
@@ -180,7 +205,7 @@ int main(void) {
         cmocka_unit_test(test_vector_new),
         cmocka_unit_test(test_vector_push),
         cmocka_unit_test(test_vector_at),
-        // cmocka_unit_test(test_vector_iter)
+        cmocka_unit_test(test_vector_iter)
 
     };
 
