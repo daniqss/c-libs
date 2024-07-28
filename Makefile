@@ -1,6 +1,5 @@
-# Compilador y banderas
 CC = gcc
-CFLAGS = -Wall -Wextra -I./src/utils
+CFLAGS = -Wall -Wextra -I./src/utils -fPIC
 LDFLAGS = -lcmocka
 
 # Directorios
@@ -10,33 +9,34 @@ TEST_DIR = test
 LOG_DIR = log
 
 # Archivos fuente y objeto
-SRC_FILES = $(SRC_DIR)/vector.c $(SRC_DIR)/utils/memory.c
-OBJ_FILES = $(BIN_DIR)/vector.o $(BIN_DIR)/utils/memory.o
-TEST_FILES = $(TEST_DIR)/vector_test.c
+SRC_FILES = $(wildcard $(SRC_DIR)/**/*.c)
+OBJ_FILES = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%.o, $(SRC_FILES))
+TEST_FILES = $(wildcard $(TEST_DIR)/*.c)
 TEST_OBJ_FILES = $(patsubst $(TEST_DIR)/%.c, $(BIN_DIR)/%.o, $(TEST_FILES))
 
-# Regla para compilar la librería vector.o
-$(BIN_DIR)/vector.o: $(SRC_DIR)/vector.c $(SRC_DIR)/vector.h $(SRC_DIR)/utils/memory.h
-	@mkdir -p $(BIN_DIR)/utils
+# Regla para compilar archivos objeto
+$(BIN_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Regla para compilar memory.o
-$(BIN_DIR)/utils/memory.o: $(SRC_DIR)/utils/memory.c $(SRC_DIR)/utils/memory.h
-	@mkdir -p $(BIN_DIR)/utils
+# Regla para compilar archivos de test
+$(BIN_DIR)/%.o: $(TEST_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Regla para compilar los tests
-$(BIN_DIR)/vector_test.o: $(TEST_DIR)/vector_test.c $(SRC_DIR)/vector.h $(SRC_DIR)/utils/memory.h
-	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+# Regla para compilar la librería compartida vector.so
+$(BIN_DIR)/vector.so: $(OBJ_FILES)
+	$(CC) -shared -o $@ $^
 
 # Regla para compilar el ejecutable de test
 $(BIN_DIR)/test: $(OBJ_FILES) $(TEST_OBJ_FILES)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-run: $(BIN_DIR)/test
+# Regla para correr los tests
+test: $(BIN_DIR)/test
 	$(BIN_DIR)/test
 
+# Regla para correr los tests con Valgrind
 valgrind: $(BIN_DIR)/test
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --errors-for-leak-kinds=all -s ./$(BIN_DIR)/test
 
@@ -45,7 +45,7 @@ clean:
 	rm -rf $(BIN_DIR)/* $(LOG_DIR)/*
 
 # Phony targets
-.PHONY: clean all
+.PHONY: clean all test vvalgrind
 
 # Regla por defecto
-all: $(BIN_DIR)/test
+all: $(BIN_DIR)/vector.so test

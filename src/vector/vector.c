@@ -1,6 +1,6 @@
 #include "vector.h"
 #include <stdlib.h>
-#include "utils/memory.h"
+#include "../utils/memory.h"
 #include <stdio.h>
 #include <string.h>
 
