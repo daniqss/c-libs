@@ -42,9 +42,9 @@ int32_t vector_new(Vector *vector, uint64_t element_size) {
 //     return SUCCESS;
 // }
 
-// int32_t vector_with_capacity(Vector *vector, uint64_t capacity, uint64_t element_size) {
-//     return vector_alloc(vector, capacity, element_size);
-// }
+int32_t vector_with_capacity(Vector *vector, uint64_t capacity, uint64_t element_size) {
+    return vector_alloc(vector, capacity, element_size);
+}
 
 int32_t vector_delete(Vector *vector) {
     free((*vector)->data);
@@ -54,31 +54,30 @@ int32_t vector_delete(Vector *vector) {
     return SUCCESS;
 }
 
-// int32_t vector_push(Vector vector, void *element) {
-//     void *element_cpy = NULL;
+int32_t vector_push(Vector vector, uint8_t *element) {
+    if (vector->length + 1 >= vector->capacity)
+        if (vector_realloc(vector) == ERROR_MALLOC)
+            return ERROR_MALLOC;
 
-//     if (vector->length + 1 >= vector->capacity)
-//         if (vector_realloc(vector) == ERROR_MALLOC)
-//             return ERROR_MALLOC;
+    for (uint32_t byte = 0; byte < vector->element_size; byte++) {
+        vector->data[vector->length + byte] = element[byte];
+    }
+    vector->length += vector->element_size;
+    return SUCCESS;
+}
 
-//     int32_t result = copy_memory(element, &element_cpy, vector->element_size);
-//     if (result != SUCCESS) return result;
-
-//     vector->data[vector->length++] = element_cpy;
-//     return SUCCESS;
-// }
-
-// int32_t vector_pop(Vector vector) {
-//     free(vector->data[--vector->length]);
-//     return SUCCESS;
-// }
+int32_t vector_pop(Vector vector) {
+    if (vector->length <= 0) return ERROR_ARGS;
+    vector->length -= vector->element_size;
+    return SUCCESS;
+}
 
 uint64_t vector_length(Vector vector) {
-    return vector->length;
+    return vector->length / vector->element_size;
 }
 
 uint64_t vector_capacity(Vector vector) {
-    return vector->capacity;
+    return vector->capacity / vector->element_size;
 }
 
 // int32_t vector_at(Vector vector, const void **element, uint64_t index) {
@@ -135,7 +134,7 @@ int32_t vector_alloc(Vector *vector, uint64_t capacity, uint64_t element_size) {
         return ERROR_MALLOC;
 
     (*vector)->length = 0;
-    (*vector)->capacity = capacity;
+    (*vector)->capacity = capacity * element_size;
     (*vector)->element_size = element_size;
 
     if (((*vector)->data = (uint8_t *)malloc((*vector)->capacity * sizeof(uint8_t))) == NULL)
@@ -145,7 +144,7 @@ int32_t vector_alloc(Vector *vector, uint64_t capacity, uint64_t element_size) {
 }
 
 int32_t vector_realloc(Vector vector) {
-    uint8_t *aux = realloc(vector->data, (vector->capacity + VECTOR_SIZE) * sizeof(uint8_t));
+    uint8_t *aux = realloc(vector->data, (vector->capacity + VECTOR_SIZE * vector->element_size) * sizeof(uint8_t));
     
     if (aux == NULL)
         return ERROR_MALLOC;

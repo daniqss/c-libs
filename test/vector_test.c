@@ -38,33 +38,51 @@ static void test_vector_new() {
     assert_null(vector2);
 }
 
-// static void test_vector_push() {
-//     Vector vector = NULL;
-//     uint32_t size = 5;
+static void test_vector_push() {
+    Vector vector1 = NULL;
+    uint32_t size1 = 5;
+    Vector vector2 = NULL;
+    uint32_t size2 = 128;
 
+    int32_t result1 = vector_with_capacity(&vector1, size1, sizeof(int32_t));
+    assert_int_equal(result1, SUCCESS);
+    assert_int_equal(vector_capacity(vector1), size1);
+    assert_int_equal(vector_length(vector1), 0);
+    int32_t result2 = vector_with_capacity(&vector2, size2, sizeof(Point));
+    assert_int_equal(result2, SUCCESS);
+    assert_int_equal(vector_capacity(vector2), size2);
+    assert_int_equal(vector_length(vector2), 0);
 
-//     int32_t result = vector_with_capacity(&vector, size, sizeof(int32_t));
-//     assert_int_equal(result, SUCCESS);
-//     assert_int_equal(vector_capacity(vector), size);
-//     assert_int_equal(vector_length(vector), 0);
+    size1 *= 2;
+    for (uint32_t i = 0; i < size1; i++) {
+        result1 = vector_push(vector1, (uint8_t *)&i);
+        assert_int_equal(result1, SUCCESS);
+        assert_int_equal(vector_length(vector1), i + 1);
+    }
+    for (uint32_t i = 0; i < size1; i++) {
+        result1 = vector_pop(vector1);
+        assert_int_equal(result1, SUCCESS);
+        assert_int_equal(vector_length(vector1), size1 - i - 1);
+    }
 
-//     size = 10;
+    size2 *= 2;
+    for (uint32_t i = 0; i < size2; i++) {
+        Point point = {x: i, y: i + 1, z: i + 2};
+        result2 = vector_push(vector2, (uint8_t *)&point);
+        assert_int_equal(result2, SUCCESS);
+        assert_int_equal(vector_length(vector2), i + 1);
+    }
+    for (uint32_t i = 0; i < size2; i++) {
+        result2 = vector_pop(vector2);
+        assert_int_equal(result2, SUCCESS);
+        assert_int_equal(vector_length(vector2), size2 - i - 1);
+    }
 
-//     for (uint32_t i = 0; i < size; i++) {
-//         result = vector_push(vector, &i);
-//         assert_int_equal(result, SUCCESS);
-//         assert_int_equal(vector_length(vector), i + 1);
-//     }
-
-//     for (uint32_t i = 0; i < size; i++) {
-//         result = vector_pop(vector);
-//         assert_int_equal(result, SUCCESS);
-//         assert_int_equal(vector_length(vector), size - i - 1);
-//     }
-
-//     vector_delete(&vector);
-//     assert_null(vector);
-// }
+    vector_delete(&vector1);
+    assert_null(vector1);
+    vector_delete(&vector2);
+    assert_null(vector2);
+}
 
 // static void test_vector_at() {
 //     Vector vector = NULL;
@@ -157,7 +175,7 @@ static void test_vector_new() {
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_vector_new),
-        // cmocka_unit_test(test_vector_push),
+        cmocka_unit_test(test_vector_push),
         // cmocka_unit_test(test_vector_at),
         // cmocka_unit_test(test_vector_iter)
 
