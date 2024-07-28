@@ -45,7 +45,7 @@ clean:
 	rm -rf $(BIN_DIR)/* $(LOG_DIR)/*
 
 # Phony targets
-.PHONY: clean all test vvalgrind
+.PHONY: clean all test valgrind
 
 # Regla por defecto
 all: $(BIN_DIR)/vector.so test
