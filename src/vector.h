@@ -14,8 +14,6 @@ int32_t vector_pop(Vector self);
 int32_t vector_at(Vector self, void **element, uint32_t index);
 int32_t vector_clone_at(Vector self, void **element, uint32_t index);
 int32_t vector_iter(Vector self, void (*fn)(void *vector_element, void *args), void *args);
-// int32_t vector_map(Vector self, Vector *new_vector, uint64_t new_element_size, void *(*fn)(void *vector_element, void *args), void *args);
-
 uint64_t vector_length(Vector self);
 uint64_t vector_capacity(Vector self);
 uint64_t vector_element_size(Vector self);

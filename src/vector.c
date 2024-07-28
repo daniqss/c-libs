@@ -95,28 +95,6 @@ int32_t vector_iter(Vector self, void (*fn)(void *vector_element, void *args), v
     return SUCCESS;
 }
 
-// int32_t vector_map(Vector self, Vector *new_vector, uint64_t new_element_size, void *(*fn)(void *vector_element, void *args), void *args) {
-//     uint8_t *new_array = NULL;
-//     void *element = NULL;
-    
-//     if (self == NULL) return ERROR_ARGS;
-//     if ((new_array = malloc(self->length * sizeof(void *))) == NULL) return ERROR_MALLOC;
-
-//     for (uint64_t i = 0; i < self->length; i += self->element_size) {
-//         // The given function should return a pointer to heap-allocated memory
-//         element = fn(&self->data[i], args);
-//         if (element == NULL) {
-//             free(new_array);
-//             return ERROR_MALLOC;
-//         }
-
-//         copy_memory(element, (void **)&new_array[i], new_element_size);
-//     }
-//     vector_from(new_vector, new_array, self->length, new_element_size);
-
-//     return SUCCESS;
-// }
-
 // Private Functions
 int32_t vector_alloc(Vector *self, uint64_t capacity, uint64_t element_size) {
     if (((*self) = (Vector)malloc(sizeof(_Vector))) == NULL)

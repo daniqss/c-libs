@@ -176,30 +176,6 @@ static void test_vector_iter() {
     vector_delete(&vector);
 }
 
-// static void test_vector_map() {
-//     Vector vector = NULL;
-//     int64_t *array;
-
-//     array = malloc(TEST_VECTOR_SIZE * sizeof(int64_t));
-//     for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
-//         array[i] = i;
-//     }
-
-//     assert_int_equal(vector_from(&vector, array, TEST_VECTOR_SIZE, sizeof(int64_t)), SUCCESS);
-//     assert_int_equal(vector_capacity(vector), TEST_VECTOR_SIZE);
-//     assert_int_equal(vector_length(vector), TEST_VECTOR_SIZE);
-
-//     Vector new_vector = NULL;
-//     assert_int_equal(vector_map(vector, &new_vector, sizeof(int64_t), NULL, NULL), ERROR_ARGS);
-
-
-//     vector_delete(&vector);
-//     assert_null(vector);
-//     vector_delete(&new_vector);
-//     assert_null(new_vector);
-// }
-
-
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_vector_new),
