@@ -20,27 +20,18 @@ int32_t vector_new(Vector *vector, uint64_t element_size) {
     return vector_alloc(vector, VECTOR_SIZE, element_size);
 }
 
-// int32_t vector_from(Vector *vector, void *data, uint64_t length, uint64_t element_size) {
-//     int32_t result = vector_alloc(vector, length, element_size);
-//     void *element = NULL;
 
-//     if (result != SUCCESS) return result;
-//     for (uint64_t i = 0; i < length; i++) {
-//         result = copy_memory(data + i * element_size, &element, element_size);
-//         if (result != SUCCESS) {
-//             for (uint64_t j = 0; j < i; j++) {
-//                 free((*vector)->data[j]);
-//             }
-//             free((*vector)->data);
-//             return result;
-//         }
-//         (*vector)->data[i] = element;
-//         element = NULL;
-//     }
-//     (*vector)->length = length;
+int32_t vector_from(Vector *vector, void *data, uint64_t length, uint64_t element_size) {
+    int32_t result;
 
-//     return SUCCESS;
-// }
+    if ((result = vector_alloc(vector, length, element_size)) != SUCCESS) return result;
+    copy_memory(data, (void **)&(*vector)->data, length * element_size);
+
+
+    (*vector)->length = length * element_size;
+
+    return SUCCESS;
+}
 
 int32_t vector_with_capacity(Vector *vector, uint64_t capacity, uint64_t element_size) {
     return vector_alloc(vector, capacity, element_size);
@@ -80,21 +71,21 @@ uint64_t vector_capacity(Vector vector) {
     return vector->capacity / vector->element_size;
 }
 
-// int32_t vector_at(Vector vector, const void **element, uint64_t index) {
-//     if (vector == NULL) return ERROR_ARGS;
-//     index = index % vector->length;
+int32_t vector_at(Vector vector, void **element, uint32_t index) {
+    if (vector == NULL) return ERROR_ARGS;
+    index = index % vector->length;
 
-//     *element = vector->data[index];
-//     return SUCCESS;
-// }
+    *element = &vector->data[index * vector->element_size];
+    return SUCCESS;
+}
 
-// int32_t vector_clone_at(Vector vector, void **element, uint64_t index) {
-//     if (vector == NULL) return ERROR_ARGS;
-//     index = index % vector->length;
+int32_t vector_clone_at(Vector vector, void **element, uint32_t index) {
+    if (vector == NULL) return ERROR_ARGS;
+    index = index % vector->length;
 
-//     int32_t result = copy_memory(vector->data[index], element, vector->element_size);
-//     return result;
-// }
+    int32_t result = dump_memory(&vector->data[index * vector->element_size], element, vector->element_size);
+    return result;
+}
 
 // int32_t vector_iter(Vector vector, void (*fn)(void *vector_element, void *args), void *args) {
 //     if (vector == NULL) return ERROR_ARGS;

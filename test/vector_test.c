@@ -9,8 +9,7 @@
 #include "../src/vector.h"
 #include "../src/utils/memory.h"
 
-#define TEST_SMALL_VECTOR 32
-#define TEST_LARGE_VECTOR 1024 
+#define TEST_VECTOR_SIZE 4096
 
 typedef struct {
     int64_t x;
@@ -84,35 +83,39 @@ static void test_vector_push() {
     assert_null(vector2);
 }
 
-// static void test_vector_at() {
-//     Vector vector = NULL;
-//     int64_t array[] = {
-//         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-//         16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
-//     };
-//     int8_t *element = NULL;
-//     const void *ptr;
-//     int64_t result[TEST_SMALL_VECTOR];
+static void test_vector_at() {
+    Vector vector = NULL;
+    int64_t *array;
+    void *element = NULL;
+    void *ptr = NULL;
+    int64_t result[TEST_VECTOR_SIZE];
 
-//     assert_int_equal(vector_from(&vector, array, TEST_SMALL_VECTOR, sizeof(int64_t)), SUCCESS);
-//     assert_int_equal(vector_capacity(vector), TEST_SMALL_VECTOR);
-//     assert_int_equal(vector_length(vector), TEST_SMALL_VECTOR);
+    array = malloc(TEST_VECTOR_SIZE * sizeof(int64_t));
+    for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+        array[i] = i;
+    }
 
-//     for (uint32_t i = 0; i < TEST_SMALL_VECTOR; i++) {
-//         result[i] = vector_clone_at(vector, (void **)&element, i);
-//         assert_int_equal(result[i], SUCCESS);
-//         assert_int_equal(*element, array[i]);
-//         free(element);
-//     }
+    assert_int_equal(vector_from(&vector, (uint8_t *)array, TEST_VECTOR_SIZE, sizeof(int64_t)), SUCCESS);
+    assert_int_equal(vector_capacity(vector), TEST_VECTOR_SIZE);
+    assert_int_equal(vector_length(vector), TEST_VECTOR_SIZE);
 
-//     for (uint32_t i = 0; i < TEST_SMALL_VECTOR; i++) {
-//         result[i] = vector_at(vector, &ptr, i);
-//         assert_int_equal(result[i], SUCCESS);
-//         assert_int_equal(*(int *)ptr, array[i]);
-//     }
+    // for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+    //     result[i] = vector_clone_at(vector, (void **)&element, i);
+    //     assert_int_equal(result[i], SUCCESS);
+    //     assert_int_equal(*(int *)element, array[i]);
+    //     free(element);
+    // }
 
-//     vector_delete(&vector);
-// }
+    for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+        result[i] = vector_at(vector, &ptr, i);
+        assert_int_equal(result[i], SUCCESS);
+        assert_int_equal(*(int64_t *)ptr, array[i]);
+    }
+
+    free(array);
+    vector_delete(&vector);
+    assert_null(vector);
+}
 
 // void print_int64_t(void *element, void *args) {
 //     if (args != NULL) return;
@@ -126,9 +129,9 @@ static void test_vector_push() {
 //         16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
 //     };
 
-//     assert_int_equal(vector_from(&vector, array, TEST_SMALL_VECTOR, sizeof(int64_t)), SUCCESS);
-//     assert_int_equal(vector_capacity(vector), TEST_SMALL_VECTOR);
-//     assert_int_equal(vector_length(vector), TEST_SMALL_VECTOR);
+//     assert_int_equal(vector_from(&vector, array, TEST_VECTOR_SIZE, sizeof(int64_t)), SUCCESS);
+//     assert_int_equal(vector_capacity(vector), TEST_VECTOR_SIZE);
+//     assert_int_equal(vector_length(vector), TEST_VECTOR_SIZE);
 
 //     // Buffer to capture the outputs
 //     char vector_buffer[1024] = {0};
@@ -157,7 +160,7 @@ static void test_vector_push() {
 //     dup2(pipe_fd[1], 1);
 //     close(pipe_fd[1]);
 
-//     for (uint32_t j = 0; j < TEST_SMALL_VECTOR; j++)
+//     for (uint32_t j = 0; j < TEST_VECTOR_SIZE; j++)
 //         print_int64_t((void *)&array[j], NULL);
 
 //     fflush(stdout);
@@ -176,7 +179,7 @@ int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_vector_new),
         cmocka_unit_test(test_vector_push),
-        // cmocka_unit_test(test_vector_at),
+        cmocka_unit_test(test_vector_at),
         // cmocka_unit_test(test_vector_iter)
 
     };
