@@ -173,6 +173,7 @@ static void test_vector_iter() {
     close(pipe_fd[0]);
 
     assert_string_equal(vector_buffer, array_buffer);
+    free(array);
     vector_delete(&vector);
 }
 
