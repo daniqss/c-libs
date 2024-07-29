@@ -36,8 +36,6 @@ int32_t vector_from(Vector *self, void *data, uint64_t length, uint64_t element_
 
 int32_t vector_copy(Vector self, Vector *new) {
     if (self == NULL || *new != NULL) return ERROR_ARGS;
-    int32_t result;
-
     return vector_from(new, self->data, self->length / self->element_size, self->element_size);
 }
 
