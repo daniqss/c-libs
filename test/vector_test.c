@@ -186,12 +186,114 @@ static void test_vector_iter() {
     vector_delete(&vector);
 }
 
+void multiply_point_by_factor(void *self_element, void *new_element, void *args) {
+    Point *src = (Point *)self_element;
+    Point *dst = (Point *)new_element;
+    int factor = *(int *)args;
+
+    dst->x = src->x * factor;
+    dst->y = src->y * factor;
+    dst->z = src->z * factor;
+}
+
+void max_coordinate(void *self_element, void *new_element, void *args) {
+    Point *point = (Point *)self_element;
+    int64_t *max = (int64_t *)new_element;
+
+    *max = point->x;
+    if (point->y > *max) *max = point->y;
+    if (point->z > *max) *max = point->z;
+}
+
+static void test_vector_map() {
+    Vector vector = NULL;
+    Vector new_vector = NULL;
+    Point *array;
+
+    // Initialize an array of Points
+    array = malloc(TEST_VECTOR_SIZE * sizeof(Point));
+    for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+        array[i].x = i;
+        array[i].y = i * 2;
+        array[i].z = i * 3;
+    }
+
+    // Create a vector from the array
+    assert_int_equal(vector_from(&vector, (uint8_t *)array, TEST_VECTOR_SIZE, sizeof(Point)), SUCCESS);
+    assert_int_equal(vector_capacity(vector), TEST_VECTOR_SIZE);
+    assert_int_equal(vector_length(vector), TEST_VECTOR_SIZE);
+
+    // Set the factor for multiplication
+    int factor = 2;
+
+    // Apply the vector_map function to multiply points by a factor
+    assert_int_equal(vector_map(vector, &new_vector, sizeof(Point), multiply_point_by_factor, &factor), SUCCESS);
+    assert_int_equal(vector_capacity(new_vector), TEST_VECTOR_SIZE);
+    assert_int_equal(vector_length(new_vector), TEST_VECTOR_SIZE);
+
+    // Verify the values in the new vector
+    for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+        void *element = NULL;
+        assert_int_equal(vector_at(new_vector, &element, i), SUCCESS);
+        Point *point = (Point *)element;
+        
+        assert_int_equal(point->x, array[i].x * factor);
+        assert_int_equal(point->y, array[i].y * factor);
+        assert_int_equal(point->z, array[i].z * factor);
+    }
+
+    // Case when fn is NULL
+    Vector copy_vector = NULL;
+    assert_int_equal(vector_map(vector, &copy_vector, sizeof(Point), NULL, NULL), SUCCESS);
+    assert_int_equal(vector_capacity(copy_vector), TEST_VECTOR_SIZE);
+    assert_int_equal(vector_length(copy_vector), TEST_VECTOR_SIZE);
+
+    // Verify the values in the copied vector
+    for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+        void *element = NULL;
+        assert_int_equal(vector_at(copy_vector, &element, i), SUCCESS);
+        Point *point = (Point *)element;
+        
+        assert_int_equal(point->x, array[i].x);
+        assert_int_equal(point->y, array[i].y);
+        assert_int_equal(point->z, array[i].z);
+    }
+
+    // Apply vector_map to new_vector to create a vector of int64_t
+    Vector int_vector = NULL;
+    assert_int_equal(vector_map(new_vector, &int_vector, sizeof(int64_t), max_coordinate, NULL), SUCCESS);
+    assert_int_equal(vector_capacity(int_vector), TEST_VECTOR_SIZE);
+    assert_int_equal(vector_length(int_vector), TEST_VECTOR_SIZE);
+
+    // Verify the values in the int_vector
+    for (uint32_t i = 0; i < TEST_VECTOR_SIZE; i++) {
+        void *element = NULL;
+        assert_int_equal(vector_at(int_vector, &element, i), SUCCESS);
+        int64_t *max_value = (int64_t *)element;
+
+        int64_t expected_max = array[i].z * factor;  // Since z is the largest component
+        assert_int_equal(*max_value, expected_max);
+    }
+
+    // Clean up
+    free(array);
+    vector_delete(&vector);
+    vector_delete(&new_vector);
+    vector_delete(&copy_vector);
+    vector_delete(&int_vector);
+    assert_null(vector);
+    assert_null(new_vector);
+    assert_null(copy_vector);
+    assert_null(int_vector);
+}
+
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_vector_new),
         cmocka_unit_test(test_vector_push),
         cmocka_unit_test(test_vector_at),
-        cmocka_unit_test(test_vector_iter)
+        cmocka_unit_test(test_vector_iter),
+        cmocka_unit_test(test_vector_map)
 
     };
 

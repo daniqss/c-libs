@@ -33,6 +33,13 @@ int32_t vector_from(Vector *self, void *data, uint64_t length, uint64_t element_
     return SUCCESS;
 }
 
+int32_t vector_copy(Vector self, Vector *new) {
+    if (self == NULL || *new != NULL) return ERROR_ARGS;
+    int32_t result;
+
+    return vector_from(new, self->data, self->length / self->element_size, self->element_size);
+}
+
 int32_t vector_with_capacity(Vector *self, uint64_t capacity, uint64_t element_size) {
     return vector_alloc(self, capacity, element_size);
 }
@@ -92,9 +99,39 @@ int32_t vector_clone_at(Vector self, void **element, uint32_t index) {
 }
 
 int32_t vector_iter(Vector self, void (*fn)(void *vector_element, void *args), void *args) {
-    if (self == NULL) return ERROR_ARGS;
+    if (self == NULL || fn == NULL) return ERROR_ARGS;
     for (uint64_t i = 0; i < self->length; i += self->element_size)
         fn(&self->data[i], args);
+
+    return SUCCESS;
+}
+
+
+int32_t vector_map(
+    Vector self,
+    Vector *new,
+    uint64_t new_element_size,
+    void (*fn)(void *self_element, void *new_element, void *args),
+    void *args
+) {
+    if (self == NULL || *new != NULL) return ERROR_ARGS;
+
+    // if fn is NULL, we copy the vector
+    if (fn == NULL) {
+        if (new_element_size != self->element_size) return ERROR_ARGS;
+        return vector_copy(self, new);
+    }
+
+    // normal behavior will alloc a new vector with capacity enough and will apply the function to each element
+    vector_with_capacity(new, vector_length(self), new_element_size);
+    uint64_t i = 0, j = 0;
+    while (i < self->length && j < (*new)->capacity) {
+        fn(&self->data[i], &(*new)->data[j], args);
+
+        (*new)->length += new_element_size;
+        i += self->element_size;
+        j += new_element_size;
+    }
 
     return SUCCESS;
 }
