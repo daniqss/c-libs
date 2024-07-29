@@ -2,6 +2,7 @@
 #define VECTOR_H
 
 #include <stdint.h>
+#include "result.h"
 
 typedef struct _Vector *Vector;
 
