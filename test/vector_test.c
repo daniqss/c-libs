@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "../src/vector/vector.h"
-#include "../src/utils/memory.h"
+#include "../src/include/vector.h"
+#include "../src/include/memory.h"
+#include "../src/include/result.h"
 
 #define TEST_VECTOR_SIZE 4096
 

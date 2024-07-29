@@ -1,21 +1,27 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -I./src/utils -fPIC
+CFLAGS = -Wall -Wextra -I./src/include -I./src/utils -fPIC
 LDFLAGS = -lcmocka
 
 # Directorios
 SRC_DIR = src
+INCLUDE_DIR = $(SRC_DIR)/include
+UTILS_DIR = $(SRC_DIR)/utils
 BIN_DIR = bin
 TEST_DIR = test
 LOG_DIR = log
 
 # Archivos fuente y objeto
-SRC_FILES = $(wildcard $(SRC_DIR)/**/*.c)
-OBJ_FILES = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%.o, $(SRC_FILES))
+SRC_FILES = $(wildcard $(SRC_DIR)/*.c) $(wildcard $(UTILS_DIR)/*.c)
+OBJ_FILES = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%.o, $(patsubst $(UTILS_DIR)/%.c, $(BIN_DIR)/%.o, $(SRC_FILES)))
 TEST_FILES = $(wildcard $(TEST_DIR)/*.c)
 TEST_OBJ_FILES = $(patsubst $(TEST_DIR)/%.c, $(BIN_DIR)/%.o, $(TEST_FILES))
 
 # Regla para compilar archivos objeto
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BIN_DIR)/%.o: $(UTILS_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 

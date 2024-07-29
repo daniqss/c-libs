@@ -1,8 +1,9 @@
-#include "vector.h"
 #include <stdlib.h>
-#include "../utils/memory.h"
 #include <stdio.h>
 #include <string.h>
+#include "include/vector.h"
+#include "include/memory.h"
+#include "include/result.h"
 
 #define VECTOR_SIZE 1024
 

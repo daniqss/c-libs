@@ -1,7 +1,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "memory.h"
+#include "../include/memory.h"
+#include "../include/result.h"
 
 int32_t dump_memory(void *src, void **dest, uint32_t element_size) {
     if (src == NULL) return ERROR_ARGS;
