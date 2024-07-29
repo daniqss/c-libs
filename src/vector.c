@@ -14,15 +14,15 @@ typedef struct _Vector {
     uint8_t *data;
 } _Vector;
 
-int32_t vector_realloc(Vector self);
-int32_t vector_alloc(Vector *self, uint64_t capacity, uint64_t element_size);
+result_t vector_realloc(Vector self);
+result_t vector_alloc(Vector *self, uint64_t capacity, uint64_t element_size);
 
-int32_t vector_new(Vector *self, uint64_t element_size) {
+result_t vector_new(Vector *self, uint64_t element_size) {
     return vector_alloc(self, VECTOR_SIZE, element_size);
 }
 
 
-int32_t vector_from(Vector *self, void *data, uint64_t length, uint64_t element_size) {
+result_t vector_from(Vector *self, void *data, uint64_t length, uint64_t element_size) {
     int32_t result;
 
     if ((result = vector_alloc(self, length, element_size)) != SUCCESS) return result;
@@ -34,16 +34,16 @@ int32_t vector_from(Vector *self, void *data, uint64_t length, uint64_t element_
     return SUCCESS;
 }
 
-int32_t vector_copy(Vector self, Vector *new) {
+result_t vector_copy(Vector self, Vector *new) {
     if (self == NULL || *new != NULL) return ERROR_ARGS;
     return vector_from(new, self->data, self->length / self->element_size, self->element_size);
 }
 
-int32_t vector_with_capacity(Vector *self, uint64_t capacity, uint64_t element_size) {
+result_t vector_with_capacity(Vector *self, uint64_t capacity, uint64_t element_size) {
     return vector_alloc(self, capacity, element_size);
 }
 
-int32_t vector_delete(Vector *self) {
+result_t vector_delete(Vector *self) {
     free((*self)->data);
     free(*self);
     *self = NULL;
@@ -51,7 +51,7 @@ int32_t vector_delete(Vector *self) {
     return SUCCESS;
 }
 
-int32_t vector_push(Vector self, uint8_t *element) {
+result_t vector_push(Vector self, uint8_t *element) {
     if (self->length + 1 >= self->capacity)
         if (vector_realloc(self) == ERROR_MALLOC)
             return ERROR_MALLOC;
@@ -63,7 +63,7 @@ int32_t vector_push(Vector self, uint8_t *element) {
     return SUCCESS;
 }
 
-int32_t vector_pop(Vector self) {
+result_t vector_pop(Vector self) {
     if (self->length <= 0) return ERROR_ARGS;
     self->length -= self->element_size;
     return SUCCESS;
@@ -81,7 +81,7 @@ uint64_t vector_element_size(Vector self) {
     return self->element_size;
 }
 
-int32_t vector_at(Vector self, void **element, uint32_t index) {
+result_t vector_at(Vector self, void **element, uint32_t index) {
     if (self == NULL) return ERROR_ARGS;
     index = index % self->length;
 
@@ -89,15 +89,15 @@ int32_t vector_at(Vector self, void **element, uint32_t index) {
     return SUCCESS;
 }
 
-int32_t vector_clone_at(Vector self, void **element, uint32_t index) {
+result_t vector_clone_at(Vector self, void **element, uint32_t index) {
     if (self == NULL) return ERROR_ARGS;
     index = index % self->length;
 
-    int32_t result = dump_memory(&self->data[index * self->element_size], element, self->element_size);
+    result_t result = dump_memory(&self->data[index * self->element_size], element, self->element_size);
     return result;
 }
 
-int32_t vector_iter(Vector self, void (*fn)(void *vector_element, void *args), void *args) {
+result_t vector_iter(Vector self, void (*fn)(void *vector_element, void *args), void *args) {
     if (self == NULL || fn == NULL) return ERROR_ARGS;
     for (uint64_t i = 0; i < self->length; i += self->element_size)
         fn(&self->data[i], args);
@@ -106,7 +106,7 @@ int32_t vector_iter(Vector self, void (*fn)(void *vector_element, void *args), v
 }
 
 
-int32_t vector_map(
+result_t vector_map(
     Vector self,
     Vector *new,
     uint64_t new_element_size,
@@ -136,7 +136,7 @@ int32_t vector_map(
 }
 
 // Private Functions
-int32_t vector_alloc(Vector *self, uint64_t capacity, uint64_t element_size) {
+result_t vector_alloc(Vector *self, uint64_t capacity, uint64_t element_size) {
     if (((*self) = (Vector)malloc(sizeof(_Vector))) == NULL)
         return ERROR_MALLOC;
 
@@ -150,7 +150,7 @@ int32_t vector_alloc(Vector *self, uint64_t capacity, uint64_t element_size) {
     return SUCCESS;
 }
 
-int32_t vector_realloc(Vector self) {
+result_t vector_realloc(Vector self) {
     uint8_t *aux = realloc(self->data, (self->capacity + VECTOR_SIZE * self->element_size) * sizeof(uint8_t));
     
     if (aux == NULL)

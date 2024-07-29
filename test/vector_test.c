@@ -21,8 +21,8 @@ typedef struct {
 static void test_vector_new() {
     Vector vector1 = NULL;
     Vector vector2 = NULL;
-    int32_t result1 = vector_new(&vector1, sizeof(int));
-    int32_t result2 = vector_new(&vector2, sizeof(Point));
+    result_t result1 = vector_new(&vector1, sizeof(int));
+    result_t result2 = vector_new(&vector2, sizeof(Point));
 
     assert_int_equal(result1, SUCCESS);
     assert_int_equal(vector_capacity(vector1), 1024);
@@ -44,11 +44,11 @@ static void test_vector_push() {
     Vector vector2 = NULL;
     uint32_t size2 = 128;
 
-    int32_t result1 = vector_with_capacity(&vector1, size1, sizeof(int32_t));
+    result_t result1 = vector_with_capacity(&vector1, size1, sizeof(result_t));
     assert_int_equal(result1, SUCCESS);
     assert_int_equal(vector_capacity(vector1), size1);
     assert_int_equal(vector_length(vector1), 0);
-    int32_t result2 = vector_with_capacity(&vector2, size2, sizeof(Point));
+    result_t result2 = vector_with_capacity(&vector2, size2, sizeof(Point));
     assert_int_equal(result2, SUCCESS);
     assert_int_equal(vector_capacity(vector2), size2);
     assert_int_equal(vector_length(vector2), 0);
