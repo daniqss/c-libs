@@ -12,6 +12,8 @@
         "span": "c",
         "valarray": "c",
         "string.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "mman.h": "c",
+        "arena.h": "c",
     }
 }
